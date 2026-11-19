@@ -130,6 +130,7 @@ services:
 
   zammad-elasticsearch:
     image: elasticsearch:${ELASTICSEARCH_VERSION:-9.5.5}
+    pull_policy: always
     restart: ${RESTART:-always}
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
@@ -146,7 +147,8 @@ services:
 
   zammad-memcached:
     command: memcached -m 256M
-    image: memcached:${MEMCACHE_VERSION:-1.6.45-alpine}
+    image: memcached:${MEMCACHE_VERSION:-alpine}
+    pull_policy: always
     restart: ${RESTART:-always}
     healthcheck:
       test: ["CMD", "nc", "-z", "127.0.0.1", "11211"]
@@ -196,7 +198,8 @@ services:
       ZAMMAD_DB: ${POSTGRES_DB:-zammad_production}
       ZAMMAD_DB_USER: ${POSTGRES_USER:-zammad}
       ZAMMAD_DB_PASS: ${POSTGRES_PASS:-zammad}
-    image: postgres:${POSTGRES_VERSION:-17.12-alpine}
+    image: postgres:${POSTGRES_VERSION:-17-alpine}
+    pull_policy: always
     restart: ${RESTART:-always}
     volumes:
       - postgresql-data:/var/lib/postgresql/data
@@ -239,7 +242,8 @@ services:
       retries: 3
 
   zammad-redis:
-    image: redis:${REDIS_VERSION:-8.10.3-alpine}
+    image: redis:${REDIS_VERSION:-latest}
+    pull_policy: always
     restart: ${RESTART:-always}
     volumes:
       - redis-data:/data
