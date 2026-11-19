@@ -35,21 +35,21 @@ x-shared:
       # Allow passing in these variables via .env:
       AUTOWIZARD_JSON:
       AUTOWIZARD_RELATIVE_PATH:
-      ELASTICSEARCH_ENABLED:
-      ELASTICSEARCH_SCHEMA:
-      ELASTICSEARCH_HOST:
-      ELASTICSEARCH_PORT:
+      ELASTICSEARCH_ENABLED: ${ELASTICSEARCH_ENABLED:-true}
+      ELASTICSEARCH_SCHEMA: ${ELASTICSEARCH_SCHEMA:-http}
+      ELASTICSEARCH_HOST: ${ELASTICSEARCH_HOST:-zammad-elasticsearch}
+      ELASTICSEARCH_PORT: ${ELASTICSEARCH_PORT:-9200}
       ELASTICSEARCH_USER:
       ELASTICSEARCH_PASS:
       ELASTICSEARCH_NAMESPACE:
       ELASTICSEARCH_REINDEX:
-      NGINX_PORT:
+      NGINX_PORT: ${NGINX_PORT:-8080}
       NGINX_CLIENT_MAX_BODY_SIZE:
       NGINX_SERVER_NAME:
-      NGINX_SERVER_SCHEME:
+      NGINX_SERVER_SCHEME: ${NGINX_SERVER_SCHEME:-https}
       RAILS_TRUSTED_PROXIES:
-      ZAMMAD_HTTP_TYPE:
-      ZAMMAD_FQDN:
+      ZAMMAD_HTTP_TYPE: ${ZAMMAD_HTTP_TYPE:-https}
+      ZAMMAD_FQDN: ${ZAMMAD_FQDN:-localhost}
       ZAMMAD_WEB_CONCURRENCY:
       ZAMMAD_MANAGE_SESSIONS_JOBS_WORKERS:
       ZAMMAD_PROCESS_SESSIONS_JOBS_WORKERS:
@@ -104,7 +104,8 @@ x-shared:
       LETSENCRYPT_HOST:
       LETSENCRYPT_EMAIL:
 
-    image: ${IMAGE_REPO:-ghcr.io/zammad/zammad}:${VERSION:-7.2.3-0015}
+    image: ${IMAGE_REPO:-ghcr.io/zammad/zammad}:${VERSION:-latest}
+    pull_policy: always
     init: true
     restart: ${RESTART:-always}
     volumes:
@@ -129,6 +130,7 @@ services:
 
   zammad-elasticsearch:
     image: elasticsearch:${ELASTICSEARCH_VERSION:-9.5.5}
+    pull_policy: always
     restart: ${RESTART:-always}
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
@@ -145,7 +147,8 @@ services:
 
   zammad-memcached:
     command: memcached -m 256M
-    image: memcached:${MEMCACHE_VERSION:-1.6.45-alpine}
+    image: memcached:${MEMCACHE_VERSION:-alpine}
+    pull_policy: always
     restart: ${RESTART:-always}
     healthcheck:
       test: ["CMD", "nc", "-z", "127.0.0.1", "11211"]
@@ -160,8 +163,6 @@ services:
     init: false
     expose:
       - "${NGINX_PORT:-8080}"
-    ports:
-      - "${NGINX_EXPOSE_PORT:-8080}:${NGINX_PORT:-8080}"
     depends_on:
       zammad-railsserver:
         condition: service_healthy
@@ -197,7 +198,8 @@ services:
       ZAMMAD_DB: ${POSTGRES_DB:-zammad_production}
       ZAMMAD_DB_USER: ${POSTGRES_USER:-zammad}
       ZAMMAD_DB_PASS: ${POSTGRES_PASS:-zammad}
-    image: postgres:${POSTGRES_VERSION:-17.12-alpine}
+    image: postgres:${POSTGRES_VERSION:-17-alpine}
+    pull_policy: always
     restart: ${RESTART:-always}
     volumes:
       - postgresql-data:/var/lib/postgresql/data
@@ -240,7 +242,8 @@ services:
       retries: 3
 
   zammad-redis:
-    image: redis:${REDIS_VERSION:-8.10.3-alpine}
+    image: redis:${REDIS_VERSION:-latest}
+    pull_policy: always
     restart: ${RESTART:-always}
     volumes:
       - redis-data:/data
